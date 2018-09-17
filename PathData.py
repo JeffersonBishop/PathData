@@ -52,30 +52,37 @@ def GetData(filetext, Rates):
                 if line[0:24] == '<span data-tooltip title':
                     lt = line.split('"')
                     if x == 0:
-                        Prices.append(lt[1])
+                        low = []
+                        low.append(lt[1])
+                        low = ConvertToChaos(Rates,low)
+                        Prices.append(low[0])
                     x += 1
                     All.append(lt[1])
-            i = 0        
-            for item in All:
-                item = item.split(' ')
-                if str(item[1]) == 'chaos':
-                    All[i] = str(item[0] + ' ' + item[1])
-                elif str(item[1]) == 'exalted':
-                    converted = float(item[0]) * float(Rates["Exalted"])
-                    All[i] = str(converted) + " chaos"
-                elif str(item[1]) == 'alchemy':
-                    converted = float(item[0]) * float(Rates["Alchemy"])
-                    All[i] = str(converted) + " chaos"
-                elif str(item[1]) == 'alteration':
-                    converted = float(item[0]) * float(Rates["Alteration"])
-                    All[i] = str(converted) + " chaos"
-                else:
-                    del All[i]
-                i += 1
+            All = ConvertToChaos(Rates, All) 
             Averages.append(GetAverage(All))
         else:
             Items.append(line)
     return Items, Prices, Averages
+
+def ConvertToChaos(Rates, List):
+    i = 0
+    for item in List:
+        item = item.split(' ')
+        if str(item[1]) == 'chaos':
+            List[i] = str(item[0]  + ' ' + item[1])
+        elif str(item[1]) == 'exalted':
+            converted = float(item[0]) * float(Rates["Exalted"])
+            List[i] = str(converted) + ' chaos' 
+        elif str(item[1]) == 'alchemy':
+            converted = float(item[0]) * float(Rates["Alchemy"])
+            List[i] = str(converted) + ' chaos'
+        elif str(item[1]) == 'alteration':
+            converted = float(item[0]) * float(Rates["Alteration"])
+            List[i] = str(converted) + ' chaos'
+        else:
+            del List[i]
+        i += 1
+    return List
 
 def GetAverage(All):
     num = 0
@@ -94,10 +101,13 @@ def CreateFile(Items, Prices, Averages):
     spreadsheet.write('A1','Name of Item')
     spreadsheet.write('B1','Lowest Price')
     spreadsheet.write('C1','Average Price in Chaos')
+    spreadsheet.write('D1','Profit in Chaos')
     for i in Items:
         spreadsheet.write('A' + str(x+1), str(Items[x-1]))
         spreadsheet.write('B' + str(x+1), str(Prices[x-1]))
         spreadsheet.write('C' + str(x+1), str(Averages[x-1]))
+        t = Prices[x-1].split(' ')
+        spreadsheet.write('D' + str(x+1), str(Averages[x-1] - float(t[0])))
         x += 1
     xlsxFile.close()    
 
