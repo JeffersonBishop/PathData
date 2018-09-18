@@ -58,8 +58,12 @@ def GetData(filetext, Rates):
                         Prices.append(low[0])
                     x += 1
                     All.append(lt[1])
-            All = ConvertToChaos(Rates, All) 
-            Averages.append(GetAverage(All))
+            if All == []:
+                Prices.append("0 chaos")
+                Averages.append(0)
+            else:    
+                All = ConvertToChaos(Rates, All) 
+                Averages.append(GetAverage(All))
         else:
             Items.append(line)
     return Items, Prices, Averages
@@ -97,6 +101,8 @@ def GetAverage(All):
 def CreateFile(Items, Prices, Averages):
     xlsxFile = xlsxwriter.Workbook('PathItemData.xlsx')
     spreadsheet = xlsxFile.add_worksheet()
+    formating = xlsxFile.add_format({'border':1})
+    spreadsheet.set_column(0, 20, 50, formating)
     x = 1
     spreadsheet.write('A1','Name of Item')
     spreadsheet.write('B1','Lowest Price')
@@ -108,6 +114,10 @@ def CreateFile(Items, Prices, Averages):
         spreadsheet.write('C' + str(x+1), str(Averages[x-1]))
         t = Prices[x-1].split(' ')
         spreadsheet.write('D' + str(x+1), str(Averages[x-1] - float(t[0])))
+        if Prices[x-1] == "0 chaos":
+            spreadsheet.write('B' + str(x+1), "No Listings")
+            spreadsheet.write('C' + str(x+1), "No Listings")
+            spreadsheet.write('D' + str(x+1), "No Listings")
         x += 1
     xlsxFile.close()    
 
