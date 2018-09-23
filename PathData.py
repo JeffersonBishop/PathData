@@ -1,4 +1,5 @@
 #encoding: utf-8
+#Jefferson Bishop, 2018
 from urllib2 import urlopen
 import requests
 import xlsxwriter
